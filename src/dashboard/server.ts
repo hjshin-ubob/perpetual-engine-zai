@@ -4,6 +4,7 @@ import { createServer } from 'node:http';
 import { WebSocketServer, WebSocket } from 'ws';
 import path from 'node:path';
 import { readdir, readFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { watch } from 'chokidar';
 import { KanbanManager } from '../core/state/kanban.js';
 import { SprintManager } from '../core/state/sprint.js';
@@ -407,11 +408,30 @@ export class DashboardServer {
     });
 
     // Static files (dashboard client)
-    const clientDir = path.join(import.meta.dirname, 'client', 'dist');
-    this.app.use(express.static(clientDir));
-    this.app.get('{*path}', (_req, res) => {
-      res.sendFile(path.join(clientDir, 'index.html'));
-    });
+    const clientDir = path.join(import.meta.dirname, 'client');
+    if (existsSync(path.join(clientDir, 'index.html'))) {
+      this.app.use(express.static(clientDir));
+      this.app.get('{*path}', (_req, res) => {
+        res.sendFile(path.join(clientDir, 'index.html'));
+      });
+    } else {
+      this.app.get('{*path}', (_req, res) => {
+        res.json({
+          status: 'dashboard_not_built',
+          message: 'Dashboard client not found. Use API endpoints below.',
+          endpoints: {
+            status: '/api/status',
+            config: '/api/config',
+            kanban: '/api/kanban',
+            tasks: '/api/tasks',
+            sprints: '/api/sprints',
+            agents: '/api/agents',
+            messages: '/api/messages',
+            docs: '/api/docs',
+          },
+        });
+      });
+    }
   }
 
   private async listMarkdownFiles(dir: string): Promise<Array<{ filename: string; modified: string }>> {

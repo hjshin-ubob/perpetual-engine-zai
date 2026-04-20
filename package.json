@@ -10,7 +10,7 @@
   "types": "./dist/src/index.d.ts",
   "scripts": {
     "build": "tsc && npm run build:assets",
-    "build:assets": "mkdir -p dist/src/dashboard/client dist/src/dashboard/design && cp -R src/dashboard/client/dist dist/src/dashboard/client/ && cp -R src/dashboard/design/. dist/src/dashboard/design/",
+    "build:assets": "mkdir -p dist/src/dashboard/client dist/src/dashboard/design && cp -R src/dashboard/client/. dist/src/dashboard/client/ && cp -R src/dashboard/design/. dist/src/dashboard/design/",
     "postinstall": "node scripts/postinstall.mjs",
     "dev": "tsx bin/cli.ts",
     "test": "vitest run",
